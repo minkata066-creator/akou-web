@@ -1,1 +1,539 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A高（アカデミア）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&family=Shippori+Mincho:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #0a0a0a;
+    --muted: #737373;
+    --border: #e5e5e5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 300;
+    line-height: 1.8;
+    letter-spacing: 0.04em;
+    -webkit-font-smoothing: antialiased;
+  }
+  .serif { font-family: 'Shippori Mincho', serif; }
+  header {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 24px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid var(--border);
+  }
+  h1 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+  }
+  nav button {
+    background: none;
+    border: none;
+    color: var(--fg);
+    font-size: 0.85rem;
+    margin-left: 20px;
+    cursor: pointer;
+    padding-bottom: 2px;
+    border-bottom: 1px solid transparent;
+  }
+  nav button:hover, nav button.active { border-bottom-color: var(--fg); }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px 24px 96px;
+  }
+  .filters {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+    margin-bottom: 48px;
+    border-bottom: 1px solid var(--border);
+  }
+  .filters button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 0.8rem;
+    white-space: nowrap;
+    cursor: pointer;
+    padding-bottom: 4px;
+    border-bottom: 1px solid transparent;
+  }
+  .filters button.active {
+    color: var(--fg);
+    border-bottom-color: var(--fg);
+  }
+  .artwork {
+    padding-bottom: 64px;
+    margin-bottom: 64px;
+    border-bottom: 1px solid var(--border);
+  }
+  .artwork:last-child { border-bottom: none; }
+  .genre-tag {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .art-image {
+    width: 100%;
+    max-height: 540px;
+    object-fit: contain;
+    background: #fafafa;
+    display: block;
+    margin-bottom: 24px;
+  }
+  .art-text {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 1.1rem;
+    line-height: 2.2;
+    white-space: pre-wrap;
+    margin-bottom: 24px;
+    padding: 24px 0;
+  }
+  .art-intent {
+    font-size: 0.85rem;
+    color: var(--muted);
+    border-left: 1px solid var(--fg);
+    padding-left: 14px;
+    margin-bottom: 28px;
+    white-space: pre-wrap;
+  }
+  .gutto-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--fg);
+    padding: 6px 16px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .gutto-btn:hover, .gutto-btn.liked {
+    background: var(--fg);
+    color: var(--bg);
+    border-color: var(--fg);
+  }
+  .panel {
+    display: none;
+    margin-bottom: 48px;
+    padding: 32px;
+    border: 1px solid var(--fg);
+  }
+  .panel.open { display: block; }
+  .panel h2 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 24px;
+  }
+  .type-switch {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .type-switch button {
+    flex: 1;
+    padding: 8px;
+    background: none;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  .type-switch button.active {
+    background: var(--fg);
+    color: var(--bg);
+    border-color: var(--fg);
+  }
+  label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+  input[type="text"], input[type="file"], textarea, select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 0.9rem;
+    border-radius: 0;
+  }
+  textarea { min-height: 120px; resize: vertical; }
+  .submit-btn {
+    margin-top: 24px;
+    width: 100%;
+    padding: 12px;
+    background: var(--fg);
+    color: var(--bg);
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+  }
+  .notice {
+    margin-top: 16px;
+    font-size: 0.8rem;
+    color: var(--fg);
+    display: none;
+  }
+  .admin-item {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 0;
+  }
+  .admin-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .admin-actions button {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border: 1px solid var(--fg);
+    background: none;
+  }
+  .admin-actions button.approve {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .empty-msg {
+    color: var(--muted);
+    font-size: 0.85rem;
+    padding: 24px 0;
+  }
+</style>
+</head>
+<body>
 
+<header>
+  <h1>A高（アカデミア）</h1>
+  <nav>
+    <button id="btn-post" onclick="togglePanel('post-panel')">作品を寄せる</button>
+    <button id="btn-admin" onclick="openAdmin()">管理</button>
+  </nav>
+</header>
+
+<main>
+  <!-- 投稿フォーム -->
+  <section id="post-panel" class="panel">
+    <h2>作品を寄せる</h2>
+    <div class="type-switch">
+      <button id="type-text" class="active" onclick="setMediaType('text')">言葉</button>
+      <button id="type-image" onclick="setMediaType('image')">絵</button>
+    </div>
+
+    <div id="input-text-wrap">
+      <label>言葉（詩・散文・断片）</label>
+      <textarea id="work-text" placeholder="ここに言葉を記す..."></textarea>
+    </div>
+
+    <div id="input-image-wrap" style="display:none;">
+      <label>画像ファイルを選択</label>
+      <input type="file" id="work-file" accept="image/*">
+      <label>または画像URL</label>
+      <input type="text" id="work-url" placeholder="https://...">
+    </div>
+
+    <label>制作者の意図（任意）</label>
+    <textarea id="work-intent" style="min-height:64px;" placeholder="背景や静かな補足があれば"></textarea>
+
+    <label>ジャンル</label>
+    <select id="work-genre">
+      <option value="詩・散文">詩・散文</option>
+      <option value="絵画・イラスト">絵画・イラスト</option>
+      <option value="写真・グラフィック">写真・グラフィック</option>
+      <option value="思索・断片">思索・断片</option>
+    </select>
+
+    <button class="submit-btn" onclick="submitWork()">静かに提出する</button>
+    <p id="post-notice" class="notice">受け付けました。管理者の確認後に展示されます。</p>
+  </section>
+
+  <!-- 管理画面 -->
+  <section id="admin-panel" class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 style="margin-bottom:0;">未承認作品の確認</h2>
+      <button onclick="togglePanel('admin-panel')" style="background:none;border:none;cursor:pointer;font-size:0.8rem;">閉じる</button>
+    </div>
+    <div id="pending-list"></div>
+  </section>
+
+  <!-- ジャンルフィルター -->
+  <div class="filters" id="genre-filters">
+    <button class="active" onclick="setFilter('すべて', this)">すべて</button>
+    <button onclick="setFilter('絵画・イラスト', this)">絵画・イラスト</button>
+    <button onclick="setFilter('詩・散文', this)">詩・散文</button>
+    <button onclick="setFilter('写真・グラフィック', this)">写真・グラフィック</button>
+    <button onclick="setFilter('思索・断片', this)">思索・断片</button>
+  </div>
+
+  <!-- タイムライン -->
+  <div id="timeline"></div>
+</main>
+
+<script>
+  const STORAGE_KEY = 'akou_academia_works_v1';
+  const LIKED_KEY = 'akou_academia_liked_v1';
+  let currentType = 'text';
+  let currentFilter = 'すべて';
+
+  // ダミー用モノトーンSVG画像
+  const sampleSvg = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">' +
+    '<rect width="800" height="500" fill="#f5f5f5"/>' +
+    '<circle cx="400" cy="250" r="110" fill="none" stroke="#0a0a0a" stroke-width="1.5"/>' +
+    '<line x1="160" y1="250" x2="640" y2="250" stroke="#737373" stroke-width="1"/>' +
+    '</svg>'
+  );
+
+  const initialWorks = [
+    {
+      id: '1',
+      type: 'text',
+      content: '雨の日の美術館は、\n自分の足音だけが輪郭を持つ場所だ。',
+      intent: '午後の静寂の中で浮かんだ言葉。',
+      genre: '詩・散文',
+      likes: 14,
+      status: 'approved'
+    },
+    {
+      id: '2',
+      type: 'image',
+      content: sampleSvg,
+      intent: '境界線が溶けていく感覚の習作。',
+      genre: '絵画・イラスト',
+      likes: 27,
+      status: 'approved'
+    }
+  ];
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function isSafeImageSrc(src) {
+    return /^https?:\/\//i.test(src) || /^data:image\//i.test(src);
+  }
+
+  function getWorks() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(initialWorks));
+      return initialWorks;
+    }
+    return JSON.parse(raw);
+  }
+
+  function saveWorks(works) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(works));
+      return true;
+    } catch (e) {
+      alert('保存容量の上限に達しました。画像サイズを小さくしてください。');
+      return false;
+    }
+  }
+
+  function getLiked() {
+    return JSON.parse(localStorage.getItem(LIKED_KEY) || '[]');
+  }
+
+  function togglePanel(id) {
+    const el = document.getElementById(id);
+    const isOpen = el.classList.contains('open');
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('open'));
+    if (!isOpen) el.classList.add('open');
+    document.getElementById('post-notice').style.display = 'none';
+  }
+
+  function setMediaType(type) {
+    currentType = type;
+    document.getElementById('type-text').classList.toggle('active', type === 'text');
+    document.getElementById('type-image').classList.toggle('active', type === 'image');
+    document.getElementById('input-text-wrap').style.display = type === 'text' ? 'block' : 'none';
+    document.getElementById('input-image-wrap').style.display = type === 'image' ? 'block' : 'none';
+  }
+
+  function submitWork() {
+    const intent = document.getElementById('work-intent').value.trim();
+    const genre = document.getElementById('work-genre').value;
+
+    if (currentType === 'text') {
+      const text = document.getElementById('work-text').value.trim();
+      if (!text) return alert('言葉を入力してください。');
+      saveNewWork('text', text, intent, genre);
+    } else {
+      const fileInput = document.getElementById('work-file');
+      const urlInput = document.getElementById('work-url').value.trim();
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          saveNewWork('image', e.target.result, intent, genre);
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else if (urlInput) {
+        if (!isSafeImageSrc(urlInput)) return alert('有効な画像URL（https://...）を入力してください。');
+        saveNewWork('image', urlInput, intent, genre);
+      } else {
+        return alert('画像を選択するかURLを入力してください。');
+      }
+    }
+  }
+
+  function saveNewWork(type, content, intent, genre) {
+    const works = getWorks();
+    const newWork = {
+      id: Date.now().toString(),
+      type,
+      content,
+      intent,
+      genre,
+      likes: 0,
+      status: 'pending'
+    };
+    works.unshift(newWork);
+    if (!saveWorks(works)) return;
+
+    document.getElementById('work-text').value = '';
+    document.getElementById('work-file').value = '';
+    document.getElementById('work-url').value = '';
+    document.getElementById('work-intent').value = '';
+    document.getElementById('post-notice').style.display = 'block';
+  }
+
+  function openAdmin() {
+    togglePanel('admin-panel');
+    renderPending();
+  }
+
+  function renderPending() {
+    const list = document.getElementById('pending-list');
+    const pending = getWorks().filter(w => w.status === 'pending');
+
+    if (pending.length === 0) {
+      list.innerHTML = '<p class="empty-msg">現在、未承認の作品はありません。</p>';
+      return;
+    }
+
+    list.innerHTML = pending.map(w => {
+      const body = w.type === 'text'
+        ? `<div class="art-text" style="padding:12px 0;margin-bottom:12px;">${escapeHtml(w.content)}</div>`
+        : (isSafeImageSrc(w.content) ? `<img class="art-image" src="${w.content}" alt="作品" style="max-height:240px;">` : '');
+      const intentHtml = w.intent ? `<p class="art-intent" style="margin-bottom:12px;">${escapeHtml(w.intent)}</p>` : '';
+      return `
+        <div class="admin-item">
+          <span class="genre-tag">${escapeHtml(w.genre)}</span>
+          ${body}
+          ${intentHtml}
+          <div class="admin-actions">
+            <button class="approve" onclick="approveWork('${w.id}')">承認して展示</button>
+            <button onclick="rejectWork('${w.id}')">却下（削除）</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function approveWork(id) {
+    const works = getWorks().map(w => w.id === id ? { ...w, status: 'approved' } : w);
+    saveWorks(works);
+    renderPending();
+    renderTimeline();
+  }
+
+  function rejectWork(id) {
+    const works = getWorks().filter(w => w.id !== id);
+    saveWorks(works);
+    renderPending();
+  }
+
+  function setFilter(genre, btn) {
+    currentFilter = genre;
+    document.querySelectorAll('#genre-filters button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTimeline();
+  }
+
+  function toggleLike(id) {
+    const liked = getLiked();
+    const works = getWorks();
+    const isLiked = liked.includes(id);
+
+    const updatedWorks = works.map(w => {
+      if (w.id === id) {
+        return { ...w, likes: Math.max(0, w.likes + (isLiked ? -1 : 1)) };
+      }
+      return w;
+    });
+
+    const updatedLiked = isLiked ? liked.filter(x => x !== id) : [...liked, id];
+    saveWorks(updatedWorks);
+    localStorage.setItem(LIKED_KEY, JSON.stringify(updatedLiked));
+    renderTimeline();
+  }
+
+  function renderTimeline() {
+    const timeline = document.getElementById('timeline');
+    const liked = getLiked();
+    const approved = getWorks().filter(w =>
+      w.status === 'approved' && (currentFilter === 'すべて' || w.genre === currentFilter)
+    );
+
+    if (approved.length === 0) {
+      timeline.innerHTML = '<p class="empty-msg">このジャンルの展示はまだありません。</p>';
+      return;
+    }
+
+    timeline.innerHTML = approved.map(w => {
+      const isLiked = liked.includes(w.id);
+      const body = w.type === 'text'
+        ? `<div class="art-text">${escapeHtml(w.content)}</div>`
+        : (isSafeImageSrc(w.content) ? `<img class="art-image" src="${w.content}" alt="展示作品">` : '');
+      const intentHtml = w.intent ? `<div class="art-intent">${escapeHtml(w.intent)}</div>` : '';
+
+      return `
+        <article class="artwork">
+          <span class="genre-tag">${escapeHtml(w.genre)}</span>
+          ${body}
+          ${intentHtml}
+          <button class="gutto-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${w.id}')">
+            <span>グッと</span>
+            <span>${w.likes}</span>
+          </button>
+        </article>
+      `;
+    }).join('');
+  }
+
+  // 初期描画
+  renderTimeline();
+</script>
+</body>
+</html>
